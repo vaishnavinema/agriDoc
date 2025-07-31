@@ -14,7 +14,7 @@ public class DiagnosisRecord {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference // This is the "child" side, it won't be serialized again
+    @JsonBackReference
     private User user;
 
     @Column(name = "image_url", nullable = false)

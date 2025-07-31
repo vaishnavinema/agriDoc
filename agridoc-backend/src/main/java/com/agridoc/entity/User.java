@@ -1,6 +1,10 @@
+// --- JPA Entities (UPDATED with Jackson annotations) ---
 package com.agridoc.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -18,8 +22,11 @@ public class User {
     private String password;
     @Column(name = "created_at", updatable = false)
     private Instant createdAt = Instant.now();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<DiagnosisRecord> diagnosisRecords;
+
     // Getters and Setters...
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -34,4 +41,3 @@ public class User {
     public List<DiagnosisRecord> getDiagnosisRecords() { return diagnosisRecords; }
     public void setDiagnosisRecords(List<DiagnosisRecord> diagnosisRecords) { this.diagnosisRecords = diagnosisRecords; }
 }
-
