@@ -66,4 +66,41 @@ public class AgriDocController {
         List<DiagnosisRecord> history = diagnosisRecordRepository.findByUserIdOrderByDiagnosedAtDesc(userId);
         return ResponseEntity.ok(history);
     }
+
+
+@PostMapping("/diagnose")
+public ResponseEntity<?> diagnose(
+        @RequestParam("image") MultipartFile imageFile,
+        @RequestParam("userId") Long userId) {
+
+    User user = userRepository.findById(userId).orElse(null);
+    if (user == null) { return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "User not found")); }
+
+    try {
+        DiagnosisResultJson result = diagnosisService.diagnose(imageFile);
+        String imageUrl = "uploads/" + imageFile.getOriginalFilename();
+        DiagnosisRecord record = new DiagnosisRecord();
+        record.setUser(user);
+        record.setImageUrl(imageUrl);
+        record.setDiseaseName(result.diseaseName);
+        record.setConfidenceScore(result.confidenceScore);
+        record.setTreatmentRecommended(result.treatmentRecommended);
+        DiagnosisRecord savedRecord = diagnosisRecordRepository.save(record);
+        return ResponseEntity.ok(savedRecord);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Failed to diagnose image: " + e.getMessage()));
+    }
+}
+
+@GetMapping("/forecast")
+public ResponseEntity<?> getForecast() {
+    try {
+        Object forecast = weatherService.getForecast("Jabalpur");
+        return ResponseEntity.ok(forecast);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Failed to get forecast: " + e.getMessage()));
+    }
+}
 }
